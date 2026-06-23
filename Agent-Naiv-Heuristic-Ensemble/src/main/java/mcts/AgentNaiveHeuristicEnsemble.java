@@ -14,20 +14,43 @@ import java.util.Random;
  * standard naive heuristic assumptions and configurable PUCT rollout
  * strategies.
  */
+/// AgentNaiveHeuristicEnsemble
+///
+/// An ensemble agent that runs multiple AgentNaiveHeuristic sub-agents in parallel/sequential
+/// searches and aggregates their search statistics.
 public class AgentNaiveHeuristicEnsemble extends AbstractDeterminizedEnsembleAgent {
 
+    /// AgentNaiveHeuristicEnsemble
+    ///
+    /// Default constructor creating an ensemble agent with default rollout greedy probability.
     public AgentNaiveHeuristicEnsemble() {
         this(null);
     }
 
+    /// AgentNaiveHeuristicEnsemble
+    ///
+    /// Constructor creating an ensemble agent with a logger and default rollout greedy probability.
+    ///
+    /// @param logger the logger instance
     public AgentNaiveHeuristicEnsemble(Logger logger) {
         this(logger, 0.4f);
     }
 
+    /// AgentNaiveHeuristicEnsemble
+    ///
+    /// Constructor creating an ensemble agent with a custom rollout greedy probability.
+    ///
+    /// @param rolloutGreedyProbability the custom rollout greedy probability
     public AgentNaiveHeuristicEnsemble(float rolloutGreedyProbability) {
         this(null, rolloutGreedyProbability);
     }
 
+    /// AgentNaiveHeuristicEnsemble
+    ///
+    /// Constructor creating an ensemble agent with a logger and custom rollout greedy probability.
+    ///
+    /// @param logger the logger instance
+    /// @param rolloutGreedyProbability the custom rollout greedy probability
     public AgentNaiveHeuristicEnsemble(Logger logger, float rolloutGreedyProbability) {
         this(
                 logger,
@@ -38,6 +61,14 @@ public class AgentNaiveHeuristicEnsemble extends AbstractDeterminizedEnsembleAge
                 rolloutGreedyProbability);
     }
 
+    /// AgentNaiveHeuristicEnsemble
+    ///
+    /// Constructor creating an ensemble agent with custom random generator, configurations, and default greedy probability.
+    ///
+    /// @param logger the logger instance
+    /// @param rand the random number generator
+    /// @param config the agent configuration
+    /// @param heuristic the heuristic configuration
     public AgentNaiveHeuristicEnsemble(
             Logger logger,
             Random rand,
@@ -46,6 +77,15 @@ public class AgentNaiveHeuristicEnsemble extends AbstractDeterminizedEnsembleAge
         this(logger, rand, config, heuristic, 0.85f);
     }
 
+    /// AgentNaiveHeuristicEnsemble
+    ///
+    /// Constructor creating an ensemble agent with custom random generator, configurations, and custom greedy probability.
+    ///
+    /// @param logger the logger instance
+    /// @param rand the random number generator
+    /// @param config the agent configuration
+    /// @param heuristic the heuristic configuration
+    /// @param rolloutGreedyProbability the custom rollout greedy probability
     public AgentNaiveHeuristicEnsemble(
             Logger logger,
             Random rand,
