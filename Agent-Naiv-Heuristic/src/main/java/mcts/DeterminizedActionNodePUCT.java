@@ -20,10 +20,13 @@ public class DeterminizedActionNodePUCT extends AbstractPuctActionNode<Determini
     /// @param agent the determinized agent managing the search tree
     /// @param parent the parent node in the search tree
     /// @param action the action represented by this node
-    /// @param checkpoint the checkpointed board state (only stored at checkpoints/root)
-    /// @param heuristic the prior heuristic probability/score of this node's action
-    /// @param explorationCoefficient the constant controlling exploration vs exploitation
-    /// @param heuristicConfiguration the heuristic configuration used for rollout evaluation
+    /// @param checkpoint the checkpointed board state (only stored at
+    /// checkpoints/root)
+    /// @param heuristic the prior heuristic probability/score of this node action
+    /// @param explorationCoefficient the constant controlling exploration vs
+    /// exploitation
+    /// @param heuristicConfiguration the heuristic configuration used for rollout
+    /// evaluation
     public DeterminizedActionNodePUCT(
             AbstractDeterminizedAgent<DeterminizedActionNodePUCT> agent,
             DeterminizedActionNodePUCT parent,
@@ -38,13 +41,7 @@ public class DeterminizedActionNodePUCT extends AbstractPuctActionNode<Determini
     /// getSelectionScore
     ///
     /// Computes the selection score based on PUCT heuristic prior weighted by the
-    /// agent's heuristic coefficient.
-    ///
-    /// @return the selection score
-    /// getSelectionScore
-    ///
-    /// Computes the selection score based on PUCT heuristic prior weighted by the
-    /// agent's heuristic coefficient.
+    /// agent heuristic coefficient.
     ///
     /// @return the selection score
     @Override
@@ -52,33 +49,14 @@ public class DeterminizedActionNodePUCT extends AbstractPuctActionNode<Determini
         if (visits == 0) {
             return Float.MAX_VALUE;
         }
-        // Map value to UCB domain
         float q = agent.ucbTransform(value / (float) visits);
         if (parent == null || parent.getVisits() <= 1) {
             return q;
         }
-        // Calculate standard PUCT exploration multiplier
         float b = (float) (Math.sqrt(parent.getVisits()) / (1 + visits));
         AgentNaiveHeuristic heuristicAgent = (AgentNaiveHeuristic) agent;
         float hCoef = heuristicAgent.getHeuristicCoefficient();
-        // Blend exploration coefficient and prior heuristic weight
         return q + (explorationCoefficient + hCoef * heuristic) * b;
-    }
-
-    /// select
-    ///
-    /// Selects the best child node based on PUCT scores, falling back to unvisited children first.
-    ///
-    /// @return the selected child node
-    @Override
-    public DeterminizedActionNodePUCT select() {
-        if (children == null || children.length == 0) {
-            return self();
-        }
-
-        DeterminizedActionNodePUCT best = selectUnvisitedOrBestUsb(children, children.length);
-        assert best != null;
-        return best.getVisits() == 0 ? best : best.select();
     }
 
     /// newChildrenArray
@@ -94,7 +72,7 @@ public class DeterminizedActionNodePUCT extends AbstractPuctActionNode<Determini
 
     /// expand
     ///
-    /// Expands the current node, initializing children with heuristic priors.
+    /// Expands the current node initializing children with heuristic priors.
     ///
     /// @param state the current board state
     /// @return the expanded node
@@ -115,7 +93,8 @@ public class DeterminizedActionNodePUCT extends AbstractPuctActionNode<Determini
 
     /// simulate
     ///
-    /// Performs simulations/rollouts from the current node using a combination of random
+    /// Performs simulations/rollouts from the current node using a combination of
+    /// random
     /// and greedy heuristic action selections.
     ///
     /// @param state the board state to start the simulation from
@@ -123,25 +102,12 @@ public class DeterminizedActionNodePUCT extends AbstractPuctActionNode<Determini
     @Override
     public float simulate(State state) {
         AgentNaiveHeuristic heuristicAgent = (AgentNaiveHeuristic) agent;
-        return averageHeuristicRollout(state, heuristicAgent.rolloutCount(),
-                (rolloutState, actions) -> chooseRolloutAction(rolloutState, actions, heuristicAgent));
-    }
-
-    /// chooseRolloutAction
-    ///
-    /// Selection strategy during simulation rollouts, choosing between greedy heuristic
-    /// decisions and random actions based on configured rollout greedy probability.
-    ///
-    /// @param state the current rollout board state
-    /// @param actions the set of legal actions
-    /// @param heuristicAgent the AgentNaiveHeuristic instance
-    /// @return the chosen action
-    private int chooseRolloutAction(State state, ActionSet actions, AgentNaiveHeuristic heuristicAgent) {
-        // Epsilon-greedy: decide whether to use greedy heuristic prior or uniform random action
-        if (agent.rand.nextFloat() < heuristicAgent.rolloutGreedyProbability) {
-            return chooseGreedyHeuristicAction(state, actions, 0.017);
-        } else {
-            return actions.get(agent.rand.nextInt(actions.size()));
-        }
+        return averageHeuristicRollout(state, heuristicAgent.rolloutCount(), (rolloutState, actions) -> {
+            if (agent.rand.nextFloat() < heuristicAgent.rolloutGreedyProbability) {
+                return chooseGreedyHeuristicAction(rolloutState, actions, 0.017);
+            } else {
+                return actions.get(agent.rand.nextInt(actions.size()));
+            }
+        });
     }
 }
