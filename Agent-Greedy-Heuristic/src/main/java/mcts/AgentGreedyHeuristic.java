@@ -97,27 +97,7 @@ public class AgentGreedyHeuristic implements GameAgent<CarcassonneGame, Carcasso
     /// @param state the current board state
     /// @return the normalized prior score array
     public float[] heuristicsNormalized(HeuristicConfiguration config, ActionSet actions, State state){
-        float[] result = new float[actions.size()];
-        int cachedPositionRotation = Integer.MIN_VALUE;
-        float cachedTileScore = 0f;
-
-        for(int i = 0; i < actions.size(); i++){
-            var act = actions.get(i);
-            // Unpack coordinate and rotation fields
-            int x = CarcassonneActionLayoutBit.getX(act);
-            int y = CarcassonneActionLayoutBit.getY(act);
-            int rot = CarcassonneActionLayoutBit.getRotation(act);
-            int positionRotationKey = (x << 10) ^ (y << 2) ^ rot;
-
-            // Cache tile placement score part to avoid redundant calculations across meeple choices/areas
-            if (positionRotationKey != cachedPositionRotation) {
-                cachedPositionRotation = positionRotationKey;
-                cachedTileScore = HeuristicManager.tilePlacementScore(state, x, y, rot, config.positionHeuristik());
-            }
-
-            float heuristicValue = HeuristicManager.computePrior(state, act, cachedTileScore, config);
-            result[i] = heuristicValue;
-        }
+        float[] result = HeuristicManager.computePriors(state, actions, config);
         // Normalize the resulting prior scores to represent a probability distribution
         AgentUtil.normalizeInPlace(result);
         return result;
